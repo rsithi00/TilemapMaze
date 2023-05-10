@@ -5,9 +5,13 @@ using UnityEngine;
 public class PlayerMovement : MonoBehaviour
 {
 
-    [SerializeField] private float moveSpeed = 2f;
+    private float moveSpeed;
     private Rigidbody2D rb;
     private bool flipped;
+
+    public Vector3 home;
+
+    [SerializeField] private GameObject target;
 
     private Vector2 movementDirection;
 
@@ -15,13 +19,46 @@ public class PlayerMovement : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+        home = rb.position;
         flipped = false;
+        moveSpeed = 5f;
     }
 
     // Update is called once per frame
     void Update()
     {
-        movementDirection = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
+
+        if(Input.GetKey(KeyCode.Escape))
+        {
+            Application.Quit();
+        }
+
+        movementDirection = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
+        if (movementDirection.x > 0)
+        {
+            movementDirection.x = 1;
+        }
+        else if (movementDirection.x < 0)
+        {
+            movementDirection.x = -1;
+        }
+        else
+        {
+            movementDirection.x = 0;
+        }
+
+        if (movementDirection.y > 0)
+        {
+            movementDirection.y = 1;
+        }
+        else if (movementDirection.y < 0)
+        {
+            movementDirection.y = -1;
+        }
+        else
+        {
+            movementDirection.y = 0;
+        }
 
         CheckFlip();
 
@@ -55,4 +92,22 @@ public class PlayerMovement : MonoBehaviour
             flipped = false;
         }
     }
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.CompareTag("Target"))
+        {
+            moveSpeed = 0f;
+            Invoke("ReturnHome", 2f);
+        }
+    }
+
+    void ReturnHome()
+    {
+        
+        transform.position = new Vector3(home.x, home.y);
+        moveSpeed = 5f;
+        this.gameObject.layer = 21;
+    }
+
+
 }
